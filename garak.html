@@ -10,7 +10,7 @@ h1 { text-align: center; }
 form { max-width: 600px; margin: auto; }
 label { display: block; margin-top: 15px; font-weight: bold; }
 input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
 .hidden { display: none; }
 .success-message { text-align:center; color: green; font-weight:bold; margin-top:20px; }
 </style>
@@ -30,6 +30,7 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
 
 <!-- شراء الشقة -->
 <div id="buySection" class="hidden">
+
   <label>الاسم</label>
   <input type="text" id="buyName" required>
 
@@ -109,6 +110,7 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
 
 <!-- بيع الشقة -->
 <div id="sellSection" class="hidden">
+
   <label>الاسم</label>
   <input type="text" id="sellName" required>
 
@@ -145,6 +147,7 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
   <select id="sellPaperwork" required>
     <option value="">اختر</option>
     <option>الورق سليم وجاهزه علي البيع</option>
+    <option>فيه مشكلة صغيره بس</option>
   </select>
 
   <label>سعر البيع</label>
@@ -175,10 +178,10 @@ const buySection = document.getElementById('buySection');
 const sellSection = document.getElementById('sellSection');
 
 transactionType.addEventListener('change', () => {
-  if(transactionType.value === 'buy') {
+  if (transactionType.value === 'buy') {
     buySection.classList.remove('hidden');
     sellSection.classList.add('hidden');
-  } else if(transactionType.value === 'sell') {
+  } else if (transactionType.value === 'sell') {
     sellSection.classList.remove('hidden');
     buySection.classList.add('hidden');
   } else {
@@ -186,10 +189,6 @@ transactionType.addEventListener('change', () => {
     sellSection.classList.add('hidden');
   }
 });
-
-// روابط Webhook
-const WEBHOOK_BUY = 'https://osha1254.app.n8n.cloud/webhook/BUY';
-const WEBHOOK_SELL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
 
 const form = document.getElementById('realEstateForm');
 
@@ -199,8 +198,9 @@ form.addEventListener('submit', (e) => {
   let data = {};
   let phone = '';
   let country = '';
+  let webhookURL = '';
 
-  if(transactionType.value === 'buy') {
+  if(transactionType.value === 'buy'){
     const name = document.getElementById('buyName').value.trim();
     country = document.getElementById('buyCountry').value;
     phone = document.getElementById('buyPhone').value.trim();
@@ -214,7 +214,7 @@ form.addEventListener('submit', (e) => {
       return;
     }
 
-    // Validation و تحويل رقم الهاتف
+    // Phone validation
     phone = phone.replace(/\D/g,'');
     if(country==='EG'){
       if(!/^01\d{9}$/.test(phone)){
@@ -223,22 +223,47 @@ form.addEventListener('submit', (e) => {
       }
       phone = '+20' + phone.slice(1);
     } else if(country==='SA'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم سعودي غير صحيح.');
+        return;
+      }
       phone = '+966' + phone.slice(1);
     } else if(country==='AE'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم إماراتي غير صحيح.');
+        return;
+      }
       phone = '+971' + phone.slice(1);
     } else if(country==='QA'){
+      if(!/^[3567]\d{7}$/.test(phone)){
+        alert('رقم قطري غير صحيح.');
+        return;
+      }
       phone = '+974' + phone;
     } else if(country==='KW'){
+      if(!/^[569]\d{7}$/.test(phone)){
+        alert('رقم كويتي غير صحيح.');
+        return;
+      }
       phone = '+965' + phone;
     } else if(country==='YE'){
+      if(!/^\d{9}$/.test(phone)){
+        alert('رقم يمني غير صحيح.');
+        return;
+      }
       phone = '+967' + phone;
     } else if(country==='IQ'){
+      if(!/^\d{10}$/.test(phone)){
+        alert('رقم عراقي غير صحيح.');
+        return;
+      }
       phone = '+964' + phone;
     }
 
+    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/BUY';
     data = {type:'buy', name, country, phone, area, cash, size, finishing};
 
-  } else if(transactionType.value === 'sell') {
+  } else if(transactionType.value === 'sell'){
     const name = document.getElementById('sellName').value.trim();
     country = document.getElementById('sellCountry').value;
     phone = document.getElementById('sellPhone').value.trim();
@@ -253,6 +278,7 @@ form.addEventListener('submit', (e) => {
       return;
     }
 
+    // Phone validation same as buy
     phone = phone.replace(/\D/g,'');
     if(country==='EG'){
       if(!/^01\d{9}$/.test(phone)){
@@ -261,42 +287,63 @@ form.addEventListener('submit', (e) => {
       }
       phone = '+20' + phone.slice(1);
     } else if(country==='SA'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم سعودي غير صحيح.');
+        return;
+      }
       phone = '+966' + phone.slice(1);
     } else if(country==='AE'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم إماراتي غير صحيح.');
+        return;
+      }
       phone = '+971' + phone.slice(1);
     } else if(country==='QA'){
+      if(!/^[3567]\d{7}$/.test(phone)){
+        alert('رقم قطري غير صحيح.');
+        return;
+      }
       phone = '+974' + phone;
     } else if(country==='KW'){
+      if(!/^[569]\d{7}$/.test(phone)){
+        alert('رقم كويتي غير صحيح.');
+        return;
+      }
       phone = '+965' + phone;
     } else if(country==='YE'){
+      if(!/^\d{9}$/.test(phone)){
+        alert('رقم يمني غير صحيح.');
+        return;
+      }
       phone = '+967' + phone;
     } else if(country==='IQ'){
+      if(!/^\d{10}$/.test(phone)){
+        alert('رقم عراقي غير صحيح.');
+        return;
+      }
       phone = '+964' + phone;
     }
 
+    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
     data = {type:'sell', name, country, phone, location, size, finishing, paperwork, price};
   } else {
     alert('اختر نوع المعاملة');
     return;
   }
 
-  // تحديد Webhook حسب الاختيار
-  let webhookURL = (transactionType.value === 'buy') ? WEBHOOK_BUY : WEBHOOK_SELL;
-
+  // إرسال البيانات إلى Webhook n8n
+  console.log('Sending data:', data);
   fetch(webhookURL, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(data)
   })
+  .then(res => res.json())
   .then(res=>{
-    if(res.ok){
-      form.reset();
-      buySection.classList.add('hidden');
-      sellSection.classList.add('hidden');
-      document.getElementById('successMessage').classList.remove('hidden');
-    } else {
-      alert('حدث خطأ أثناء الإرسال.');
-    }
+    form.reset();
+    buySection.classList.add('hidden');
+    sellSection.classList.add('hidden');
+    document.getElementById('successMessage').classList.remove('hidden');
   })
   .catch(err=>{
     alert('حدث خطأ أثناء الإرسال.');
