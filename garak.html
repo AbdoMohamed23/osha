@@ -539,13 +539,11 @@ const form = document.getElementById('realEstateForm');
 
 // دالة لإزالة أو إضافة خاصية required للحقول بناءً على القسم الظاهر
 function toggleRequiredFields() {
-  // إزالة required من جميع الحقول أولاً
   const allInputs = form.querySelectorAll('input, select');
   allInputs.forEach(field => {
     field.removeAttribute('required');
   });
 
-  // إضافة required فقط للحقول في القسم الظاهر
   if (transactionType.value === 'buy') {
     const buyFields = buySection.querySelectorAll('input, select');
     buyFields.forEach(field => {
@@ -571,7 +569,6 @@ transactionType.addEventListener('change', () => {
   } else {
     buySection.classList.add('hidden');
     sellSection.classList.add('hidden');
-    // إزالة required من جميع الحقول عند عدم الاختيار
     const allInputs = form.querySelectorAll('input, select');
     allInputs.forEach(field => {
       field.removeAttribute('required');
@@ -579,154 +576,241 @@ transactionType.addEventListener('change', () => {
   }
 });
 
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  // تعطيل الزر لمنع الإرسال المتكرر
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  submitButton.textContent = 'جاري الإرسال...';
 
   let data = {};
   let phone = '';
   let country = '';
   let webhookURL = '';
 
-  if(transactionType.value === 'buy'){
-    const name = document.getElementById('buyName').value.trim();
-    country = document.getElementById('buyCountry').value;
-    phone = document.getElementById('buyPhone').value.trim();
-    const area = document.getElementById('buyArea').value;
-    const cash = document.getElementById('buyCash').value;
-    const size = document.getElementById('buyAreaSize').value;
-    const finishing = document.getElementById('buyFinishing').value;
+  try {
+    if(transactionType.value === 'buy'){
+      const name = document.getElementById('buyName').value.trim();
+      country = document.getElementById('buyCountry').value;
+      phone = document.getElementById('buyPhone').value.trim();
+      const area = document.getElementById('buyArea').value;
+      const cash = document.getElementById('buyCash').value;
+      const size = document.getElementById('buyAreaSize').value;
+      const finishing = document.getElementById('buyFinishing').value;
 
-    if(!name || !country || !phone || !area || !cash || !size || !finishing){
-      alert('رجاءً أكمل كل الحقول');
+      if(!name || !country || !phone || !area || !cash || !size || !finishing){
+        alert('رجاءً أكمل كل الحقول');
+        submitButton.disabled = false;
+        submitButton.textContent = 'إرسال';
+        return;
+      }
+
+      // تنظيف رقم الهاتف
+      phone = phone.replace(/\D/g,'');
+      
+      // التحقق من صحة الرقم حسب الدولة
+      if(country==='EG'){
+        if(!/^01\d{9}$/.test(phone)){
+          alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+20' + phone.slice(1);
+      } else if(country==='SA'){
+        if(!/^05\d{8}$/.test(phone)){
+          alert('رقم سعودي غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+966' + phone.slice(1);
+      } else if(country==='AE'){
+        if(!/^05\d{8}$/.test(phone)){
+          alert('رقم إماراتي غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+971' + phone.slice(1);
+      } else if(country==='QA'){
+        if(!/^[3567]\d{7}$/.test(phone)){
+          alert('رقم قطري غير صحيح. يجب أن يتكون من 8 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+974' + phone;
+      } else if(country==='KW'){
+        if(!/^[569]\d{7}$/.test(phone)){
+          alert('رقم كويتي غير صحيح. يجب أن يتكون من 8 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+965' + phone;
+      } else if(country==='YE'){
+        if(!/^\d{9}$/.test(phone)){
+          alert('رقم يمني غير صحيح. يجب أن يتكون من 9 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+967' + phone;
+      } else if(country==='IQ'){
+        if(!/^\d{10}$/.test(phone)){
+          alert('رقم عراقي غير صحيح. يجب أن يتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+964' + phone;
+      }
+
+      // تجهيز البيانات بشكل منظم
+      data = {
+        type: 'buy',
+        transaction_type: 'شراء شقة',
+        customer_name: name,
+        country_code: country,
+        country_name: getCountryName(country),
+        phone_number: phone,
+        area: area,
+        cash_range: cash,
+        apartment_size: size,
+        finishing_type: finishing,
+        submission_date: new Date().toISOString(),
+        submission_timestamp: Date.now()
+      };
+
+      webhookURL = 'https://osha1254.app.n8n.cloud/webhook/BUY';
+
+    } else if(transactionType.value === 'sell'){
+      const name = document.getElementById('sellName').value.trim();
+      country = document.getElementById('sellCountry').value;
+      phone = document.getElementById('sellPhone').value.trim();
+      const location = document.getElementById('sellLocation').value.trim();
+      const size = document.getElementById('sellSize').value.trim();
+      const finishing = document.getElementById('sellFinishing').value;
+      const paperwork = document.getElementById('sellPaperwork').value;
+      const price = document.getElementById('sellPrice').value;
+
+      if(!name || !country || !phone || !location || !size || !finishing || !paperwork || !price){
+        alert('رجاءً أكمل كل الحقول');
+        submitButton.disabled = false;
+        submitButton.textContent = 'إرسال';
+        return;
+      }
+
+      // تنظيف رقم الهاتف
+      phone = phone.replace(/\D/g,'');
+      
+      // التحقق من صحة الرقم (نفس التحقق السابق)
+      if(country==='EG'){
+        if(!/^01\d{9}$/.test(phone)){
+          alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+20' + phone.slice(1);
+      } else if(country==='SA'){
+        if(!/^05\d{8}$/.test(phone)){
+          alert('رقم سعودي غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+966' + phone.slice(1);
+      } else if(country==='AE'){
+        if(!/^05\d{8}$/.test(phone)){
+          alert('رقم إماراتي غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+971' + phone.slice(1);
+      } else if(country==='QA'){
+        if(!/^[3567]\d{7}$/.test(phone)){
+          alert('رقم قطري غير صحيح. يجب أن يتكون من 8 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+974' + phone;
+      } else if(country==='KW'){
+        if(!/^[569]\d{7}$/.test(phone)){
+          alert('رقم كويتي غير صحيح. يجب أن يتكون من 8 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+965' + phone;
+      } else if(country==='YE'){
+        if(!/^\d{9}$/.test(phone)){
+          alert('رقم يمني غير صحيح. يجب أن يتكون من 9 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+967' + phone;
+      } else if(country==='IQ'){
+        if(!/^\d{10}$/.test(phone)){
+          alert('رقم عراقي غير صحيح. يجب أن يتكون من 10 أرقام');
+          submitButton.disabled = false;
+          submitButton.textContent = 'إرسال';
+          return;
+        }
+        phone = '+964' + phone;
+      }
+
+      // تجهيز البيانات بشكل منظم
+      data = {
+        type: 'sell',
+        transaction_type: 'بيع شقة',
+        customer_name: name,
+        country_code: country,
+        country_name: getCountryName(country),
+        phone_number: phone,
+        apartment_location: location,
+        apartment_size: size + ' متر',
+        finishing_type: finishing,
+        paperwork_status: paperwork,
+        price_range: price,
+        submission_date: new Date().toISOString(),
+        submission_timestamp: Date.now()
+      };
+
+      webhookURL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
+    } else {
+      alert('اختر نوع المعاملة');
+      submitButton.disabled = false;
+      submitButton.textContent = 'إرسال';
       return;
     }
 
-    // Phone validation
-    phone = phone.replace(/\D/g,'');
-    if(country==='EG'){
-      if(!/^01\d{9}$/.test(phone)){
-        alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
-        return;
-      }
-      phone = '+20' + phone.slice(1);
-    } else if(country==='SA'){
-      if(!/^05\d{8}$/.test(phone)){
-        alert('رقم سعودي غير صحيح.');
-        return;
-      }
-      phone = '+966' + phone.slice(1);
-    } else if(country==='AE'){
-      if(!/^05\d{8}$/.test(phone)){
-        alert('رقم إماراتي غير صحيح.');
-        return;
-      }
-      phone = '+971' + phone.slice(1);
-    } else if(country==='QA'){
-      if(!/^[3567]\d{7}$/.test(phone)){
-        alert('رقم قطري غير صحيح.');
-        return;
-      }
-      phone = '+974' + phone;
-    } else if(country==='KW'){
-      if(!/^[569]\d{7}$/.test(phone)){
-        alert('رقم كويتي غير صحيح.');
-        return;
-      }
-      phone = '+965' + phone;
-    } else if(country==='YE'){
-      if(!/^\d{9}$/.test(phone)){
-        alert('رقم يمني غير صحيح.');
-        return;
-      }
-      phone = '+967' + phone;
-    } else if(country==='IQ'){
-      if(!/^\d{10}$/.test(phone)){
-        alert('رقم عراقي غير صحيح.');
-        return;
-      }
-      phone = '+964' + phone;
+    // إظهار البيانات في الكونسول للتأكد
+    console.log('البيانات المرسلة:', data);
+    console.log('ويب هوك:', webhookURL);
+
+    // إرسال البيانات إلى Webhook n8n
+    const response = await fetch(webhookURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('فشل في الإرسال');
     }
 
-    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/BUY';
-    data = {type:'buy', name, country, phone, area, cash, size, finishing};
+    const responseData = await response.json();
+    console.log('رد الخادم:', responseData);
 
-  } else if(transactionType.value === 'sell'){
-    const name = document.getElementById('sellName').value.trim();
-    country = document.getElementById('sellCountry').value;
-    phone = document.getElementById('sellPhone').value.trim();
-    const location = document.getElementById('sellLocation').value.trim();
-    const size = document.getElementById('sellSize').value.trim();
-    const finishing = document.getElementById('sellFinishing').value;
-    const paperwork = document.getElementById('sellPaperwork').value;
-    const price = document.getElementById('sellPrice').value;
-
-    if(!name || !country || !phone || !location || !size || !finishing || !paperwork || !price){
-      alert('رجاءً أكمل كل الحقول');
-      return;
-    }
-
-    // Phone validation same as buy
-    phone = phone.replace(/\D/g,'');
-    if(country==='EG'){
-      if(!/^01\d{9}$/.test(phone)){
-        alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
-        return;
-      }
-      phone = '+20' + phone.slice(1);
-    } else if(country==='SA'){
-      if(!/^05\d{8}$/.test(phone)){
-        alert('رقم سعودي غير صحيح.');
-        return;
-      }
-      phone = '+966' + phone.slice(1);
-    } else if(country==='AE'){
-      if(!/^05\d{8}$/.test(phone)){
-        alert('رقم إماراتي غير صحيح.');
-        return;
-      }
-      phone = '+971' + phone.slice(1);
-    } else if(country==='QA'){
-      if(!/^[3567]\d{7}$/.test(phone)){
-        alert('رقم قطري غير صحيح.');
-        return;
-      }
-      phone = '+974' + phone;
-    } else if(country==='KW'){
-      if(!/^[569]\d{7}$/.test(phone)){
-        alert('رقم كويتي غير صحيح.');
-        return;
-      }
-      phone = '+965' + phone;
-    } else if(country==='YE'){
-      if(!/^\d{9}$/.test(phone)){
-        alert('رقم يمني غير صحيح.');
-        return;
-      }
-      phone = '+967' + phone;
-    } else if(country==='IQ'){
-      if(!/^\d{10}$/.test(phone)){
-        alert('رقم عراقي غير صحيح.');
-        return;
-      }
-      phone = '+964' + phone;
-    }
-
-    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
-    data = {type:'sell', name, country, phone, location, size, finishing, paperwork, price};
-  } else {
-    alert('اختر نوع المعاملة');
-    return;
-  }
-
-  // إرسال البيانات إلى Webhook n8n
-  console.log('Sending data:', data);
-  fetch(webhookURL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(res=>{
+    // عرض رسالة النجاح
     form.reset();
     buySection.classList.add('hidden');
     sellSection.classList.add('hidden');
@@ -740,14 +824,44 @@ form.addEventListener('submit', (e) => {
     
     // إعادة تعيين اختيار نوع المعاملة
     transactionType.value = '';
-  })
-  .catch(err=>{
-    alert('حدث خطأ أثناء الإرسال.');
-    console.error(err);
-  });
 
+    // إخفاء رسالة النجاح بعد 5 ثواني
+    setTimeout(() => {
+      document.getElementById('successMessage').classList.add('hidden');
+    }, 5000);
+
+  } catch (error) {
+    console.error('خطأ:', error);
+    alert('حدث خطأ أثناء الإرسال. الرجاء المحاولة مرة أخرى.');
+  } finally {
+    // إعادة تفعيل الزر
+    submitButton.disabled = false;
+    submitButton.textContent = 'إرسال';
+  }
+});
+
+// دالة مساعدة للحصول على اسم الدولة
+function getCountryName(countryCode) {
+  const countries = {
+    'EG': 'مصر',
+    'SA': 'السعودية',
+    'AE': 'الإمارات',
+    'QA': 'قطر',
+    'KW': 'الكويت',
+    'YE': 'اليمن',
+    'IQ': 'العراق'
+  };
+  return countries[countryCode] || countryCode;
+}
+
+// إضافة validation للحقول عند التغيير
+document.querySelectorAll('input, select').forEach(field => {
+  field.addEventListener('invalid', (e) => {
+    e.preventDefault();
+  });
 });
 </script>
 </div>
 </body>
 </html>
+
