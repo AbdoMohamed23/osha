@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GARAK ELAKARIA Real Estate Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>GARAK ELAKARIA Real Estate Form</h1>
+
+    <form id="realEstateForm">
+
+        <label>هل تريد شراء شقة أم بيع شقة؟</label>
+        <select id="transactionType" required>
+            <option value="">اختر</option>
+            <option value="buy">اشتري شقة</option>
+            <option value="sell">بيع شقة</option>
+        </select>
+
+        <!-- شراء الشقة -->
+        <div id="buySection" class="hidden">
+
+            <label>الاسم</label>
+            <input type="text" id="buyName" required>
+
+            <label>الدولة</label>
+            <select id="buyCountry" required>
+                <option value="">اختر الدولة</option>
+                <option value="EG">🇪🇬 مصر (+20)</option>
+                <option value="SA">🇸🇦 السعودية (+966)</option>
+                <option value="AE">🇦🇪 الإمارات (+971)</option>
+                <option value="QA">🇶🇦 قطر (+974)</option>
+                <option value="KW">🇰🇼 الكويت (+965)</option>
+                <option value="YE">🇾🇪 اليمن (+967)</option>
+                <option value="IQ">🇮🇶 العراق (+964)</option>
+            </select>
+
+            <label>رقم الموبايل</label>
+            <input type="text" id="buyPhone" placeholder="اكتب الرقم كاملاً" required>
+
+            <label>في أي منطقة في طنطا؟</label>
+            <select id="buyArea" required>
+                <option value="">اختر المنطقة</option>
+                <option>الاستاد</option>
+                <option>شوبر</option>
+                <option>شارع البحر</option>
+                <option>شارع النحاس</option>
+                <option>شارع الحلو</option>
+                <option>شارع سعيد</option>
+                <option>شارع محب</option>
+                <option>شارع الاشرف</option>
+                <option>شارع حسان</option>
+                <option>الجلاء</option>
+                <option>حي اول</option>
+                <option>حي ثان</option>
+                <option>ترعه الشيتي</option>
+                <option>العجيزي</option>
+                <option>سيجر</option>
+                <option>الحكمه</option>
+                <option>منطقه سبرباي</option>
+                <option>منطقه المحطه</option>
+            </select>
+
+            <label>سعر الكاش المتاح معك</label>
+            <select id="buyCash" required>
+                <option value="">اختر</option>
+                <option>من مليون ل مليون ونص</option>
+                <option>من مليون ونصف ل 2 مليون</option>
+                <option>من 2 مليون ل 2ونصف مليون</option>
+                <option>من 2ونصف مليون ل 3 مليون</option>
+                <option>من 3 مليون ل 3 ونصف مليون</option>
+                <option>من 3 ونصف مليون ل 4 مليون</option>
+                <option>من 4 مليون ل 5 مليون</option>
+                <option>من 5 مليون ل 6 مليون</option>
+                <option>اكتر من 7 مليون</option>
+            </select>
+
+            <label>الشقة في حدود السعر كام متر؟</label>
+            <select id="buyAreaSize" required>
+                <option value="">اختر</option>
+                <option>من 80 متر ل 110 متر</option>
+                <option>من 110 متر ل 130 متر</option>
+                <option>من 130 ل 150 متر</option>
+                <option>من 150 ل 190 متر</option>
+                <option>من 190 ل 230 متر</option>
+                <option>من 230 ل 270 متر</option>
+            </select>
+
+            <label>هل الشقة متشطبة؟</label>
+            <select id="buyFinishing" required>
+                <option value="">اختر</option>
+                <option>عايزها متشطبه</option>
+                <option>عايزها نص تشطيب</option>
+                <option>عايزها علي الطوب</option>
+                <option>عايزها علي الطوب او نص تشطيب عادي</option>
+            </select>
+
+        </div>
+
+        <!-- بيع الشقة -->
+        <div id="sellSection" class="hidden">
+
+            <label>الاسم</label>
+            <input type="text" id="sellName" required>
+
+            <label>الدولة</label>
+            <select id="sellCountry" required>
+                <option value="">اختر الدولة</option>
+                <option value="EG">🇪🇬 مصر (+20)</option>
+                <option value="SA">🇸🇦 السعودية (+966)</option>
+                <option value="AE">🇦🇪 الإمارات (+971)</option>
+                <option value="QA">🇶🇦 قطر (+974)</option>
+                <option value="KW">🇰🇼 الكويت (+965)</option>
+                <option value="YE">🇾🇪 اليمن (+967)</option>
+                <option value="IQ">🇮🇶 العراق (+964)</option>
+            </select>
+
+            <label>رقم الموبايل</label>
+            <input type="text" id="sellPhone" placeholder="اكتب الرقم كاملاً" required>
+
+            <label>مكان الشقة</label>
+            <input type="text" id="sellLocation" placeholder="الشارع الرئيسي" required>
+
+            <label>مساحة الشقة بالمتر</label>
+            <input type="number" id="sellSize" min="1" required>
+
+            <label>هل الشقة متشطبة؟</label>
+            <select id="sellFinishing" required>
+                <option value="">اختر</option>
+                <option>على الطوب</option>
+                <option>نص تشطيب</option>
+                <option>متشطبه</option>
+            </select>
+
+            <label>هل كل الورق جاهز؟</label>
+            <select id="sellPaperwork" required>
+                <option value="">اختر</option>
+                <option>الورق سليم وجاهزه علي البيع</option>
+            </select>
+
+            <label>سعر البيع</label>
+            <select id="sellPrice" required>
+                <option value="">اختر</option>
+                <option>من 500 الف ل مليون</option>
+                <option>من مليون ل مليون ونصف</option>
+                <option>من مليون ونصف ل 2 مليون</option>
+                <option>من 2 مليون ل 2ونصف مليون</option>
+                <option>من 2ونصف مليون ل 3 مليون</option>
+                <option>من 3 مليون ل 3 ونصف مليون</option>
+                <option>من 3 ونصف مليون ل 4 مليون</option>
+                <option>من 4 مليون ل 5 مليون</option>
+                <option>من 5 مليون ل 6 مليون</option>
+                <option>اكتر من 7 مليون</option>
+            </select>
+
+        </div>
+
+        <button type="submit">إرسال</button>
+        <div class="success-message hidden" id="successMessage">
+            شكرا على تعاملك مع جارك العقارية. سيتم التواصل معك على الرقم إذا كان صحيح.
+        </div>
+
+        <script>
+            const transactionType = document.getElementById('transactionType');
+            const buySection = document.getElementById('buySection');
+            const sellSection = document.getElementById('sellSection');
+
+            transactionType.addEventListener('change', () => {
+                if (transactionType.value === 'buy') {
+                    buySection.classList.remove('hidden');
+                    sellSection.classList.add('hidden');
+                } else if (transactionType.value === 'sell') {
+                    sellSection.classList.remove('hidden');
+                    buySection.classList.add('hidden');
+                } else {
+                    buySection.classList.add('hidden');
+                    sellSection.classList.add('hidden');
+                }
+            });
+
+            // Validation & format phone before sending
+            const form = document.getElementById('realEstateForm');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                let data = {};
+                let valid = true;
+                let phone = '';
+                let country = '';
+
+                if (transactionType.value === 'buy') {
+                    const name = document.getElementById('buyName').value.trim();
+                    country = document.getElementById('buyCountry').value;
+                    phone = document.getElementById('buyPhone').value.trim();
+                    const area = document.getElementById('buyArea').value;
+                    const cash = document.getElementById('buyCash').value;
+                    const size = document.getElementById('buyAreaSize').value;
+                    const finishing = document.getElementById('buyFinishing').value;
+
+                    if (!name || !country || !phone || !area || !cash || !size || !finishing) {
+                        alert('رجاءً أكمل كل الحقول');
+                        return;
+                    }
+
+                    // Phone validation
+                    phone = phone.replace(/\D/g, '');
+                    if (country === 'EG') {
+                        if (!/^01\d{9}$/.test(phone)) {
+                            alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+                            return;
+                        }
+                        phone = '+20' + phone.slice(1);
+                    } else if (country === 'SA') {
+                        if (!/^05\d{8}$/.test(phone)) {
+                            alert('رقم سعودي غير صحيح.');
+                            return;
+                        }
+                        phone = '+966' + phone.slice(1);
+                    } else if (country === 'AE') {
+                        if (!/^05\d{8}$/.test(phone)) {
+                            alert('رقم إماراتي غير صحيح.');
+                            return;
+                        }
+                        phone = '+971' + phone.slice(1);
+                    } else if (country === 'QA') {
+                        if (!/^[3567]\d{7}$/.test(phone)) {
+                            alert('رقم قطري غير صحيح.');
+                            return;
+                        }
+                        phone = '+974' + phone;
+                    } else if (country === 'KW') {
+                        if (!/^[569]\d{7}$/.test(phone)) {
+                            alert('رقم كويتي غير صحيح.');
+                            return;
+                        }
+                        phone = '+965' + phone;
+                    } else if (country === 'YE') {
+                        if (!/^\d{9}$/.test(phone)) {
+                            alert('رقم يمني غير صحيح.');
+                            return;
+                        }
+                        phone = '+967' + phone;
+                    } else if (country === 'IQ') {
+                        if (!/^\d{10}$/.test(phone)) {
+                            alert('رقم عراقي غير صحيح.');
+                            return;
+                        }
+                        phone = '+964' + phone;
+                    }
+
+                    data = { type: 'buy', name, country, phone, area, cash, size, finishing };
+
+                } else if (transactionType.value === 'sell') {
+                    const name = document.getElementById('sellName').value.trim();
+                    country = document.getElementById('sellCountry').value;
+                    phone = document.getElementById('sellPhone').value.trim();
+                    const location = document.getElementById('sellLocation').value.trim();
+                    const size = document.getElementById('sellSize').value.trim();
+                    const finishing = document.getElementById('sellFinishing').value;
+                    const paperwork = document.getElementById('sellPaperwork').value;
+                    const price = document.getElementById('sellPrice').value;
+
+                    if (!name || !country || !phone || !location || !size || !finishing || !paperwork || !price) {
+                        alert('رجاءً أكمل كل الحقول');
+                        return;
+                    }
+
+                    // Phone validation same as buy
+                    phone = phone.replace(/\D/g, '');
+                    if (country === 'EG') {
+                        if (!/^01\d{9}$/.test(phone)) {
+                            alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+                            return;
+                        }
+                        phone = '+20' + phone.slice(1);
+                    } else if (country === 'SA') {
+                        if (!/^05\d{8}$/.test(phone)) {
+                            alert('رقم سعودي غير صحيح.');
+                            return;
+                        }
+                        phone = '+966' + phone.slice(1);
+                    } else if (country === 'AE') {
+                        if (!/^05\d{8}$/.test(phone)) {
+                            alert('رقم إماراتي غير صحيح.');
+                            return;
+                        }
+                        phone = '+971' + phone.slice(1);
+                    } else if (country === 'QA') {
+                        if (!/^[3567]\d{7}$/.test(phone)) {
+                            alert('رقم قطري غير صحيح.');
+                            return;
+                        }
+                        phone = '+974' + phone;
+                    } else if (country === 'KW') {
+                        if (!/^[569]\d{7}$/.test(phone)) {
+                            alert('رقم كويتي غير صحيح.');
+                            return;
+                        }
+                        phone = '+965' + phone;
+                    } else if (country === 'YE') {
+                        if (!/^\d{9}$/.test(phone)) {
+                            alert('رقم يمني غير صحيح.');
+                            return;
+                        }
+                        phone = '+967' + phone;
+                    } else if (country === 'IQ') {
+                        if (!/^\d{10}$/.test(phone)) {
+                            alert('رقم عراقي غير صحيح.');
+                            return;
+                        }
+                        phone = '+964' + phone;
+                    }
+
+                    data = { type: 'sell', name, country, phone, location, size, finishing, paperwork, price };
+                } else {
+                    alert('اختر نوع المعاملة');
+                    return;
+                }
+
+                // إرسال البيانات إلى Webhook n8n
+                fetch('YOUR_N8N_WEBHOOK_URL_HERE', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                    .then(res => res.json())
+                    .then(res => {
+                        form.reset();
+                        buySection.classList.add('hidden');
+                        sellSection.classList.add('hidden');
+                        document.getElementById('successMessage').classList.remove('hidden');
+                    })
+                    .catch(err => {
+                        alert('حدث خطأ أثناء الإرسال.');
+                        console.error(err);
+                    });
+
+            });
+        </script>
+
+</body>
+
+</html>
