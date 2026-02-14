@@ -3,31 +3,395 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <title>GARAK ELAKARIA Real Estate Form</title>
 <style>
-body { font-family: Arial, sans-serif; direction: rtl; margin: 20px; }
-h1 { text-align: center; }
-form { max-width: 600px; margin: auto; }
-label { display: block; margin-top: 15px; font-weight: bold; }
-input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-.hidden { display: none; }
-.success-message { text-align:center; color: green; font-weight:bold; margin-top:20px; }
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --accent-color: #3498db;
+  --success-color: #27ae60;
+  --error-color: #e74c3c;
+  --background-color: #ecf0f1;
+  --text-color: #2c3e50;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+  direction: rtl;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  letter-spacing: 1px;
+}
+
+h1::after {
+  content: "🏠";
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+form {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1.1em;
+  transition: var(--transition);
+}
+
+label:first-of-type {
+  margin-top: 0;
+}
+
+label::after {
+  content: " *";
+  color: var(--error-color);
+  font-size: 1.2em;
+  display: inline;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-top: 8px;
+  margin-bottom: 5px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: 'Cairo', sans-serif;
+  transition: var(--transition);
+  background-color: #f8f9fa;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  background-color: white;
+}
+
+input:hover, select:hover {
+  border-color: var(--primary-color);
+  background-color: white;
+}
+
+input::placeholder {
+  color: #999;
+  font-size: 0.9em;
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: left 15px center;
+  background-size: 15px;
+  padding-left: 40px;
+}
+
+button {
+  width: 100%;
+  margin-top: 30px;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: right 0.5s ease;
+}
+
+button:hover::before {
+  right: 100%;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success-message {
+  text-align: center;
+  color: var(--success-color);
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 15px;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  border-radius: 8px;
+  border: 2px solid var(--success-color);
+  animation: fadeIn 0.5s ease;
+  font-size: 1.1em;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+/* تنسيقات خاصة لأقسام الشراء والبيع */
+#buySection, #sellSection {
+  animation: slideIn 0.4s ease;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* تنسيق الترويسة */
+#transactionType {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+/* تنسيق الأرقام */
+input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* تنسيق حقول الموبايل مع اختيار الدولة */
+#buyPhone, #sellPhone {
+  direction: ltr;
+  text-align: left;
+  font-family: monospace;
+  font-size: 1.1em;
+}
+
+/* إضافة أيقونات للدول */
+#buyCountry option, #sellCountry option {
+  padding: 10px;
+  font-size: 1.1em;
+}
+
+/* تحسين ظهور القوائم المنسدلة */
+select option {
+  padding: 12px;
+  font-size: 1em;
+}
+
+/* تنسيق رسائل الخطأ (اختياري) */
+.error-message {
+  color: var(--error-color);
+  font-size: 0.9em;
+  margin-top: 5px;
+  display: none;
+}
+
+input:invalid:focus, select:invalid:focus {
+  border-color: var(--error-color);
+}
+
+/* تصميم متجاوب للشاشات الصغيرة */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  form {
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 1.8em;
+  }
+  
+  label {
+    font-size: 1em;
+  }
+  
+  input, select {
+    padding: 10px;
+  }
+  
+  button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5em;
+  }
+  
+  form {
+    padding: 15px;
+  }
+  
+  label {
+    font-size: 0.95em;
+  }
+}
+
+/* تنسيق السكرول بار */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* إضافة تأثيرات حركية للحقول عند التمرير */
+input:focus::placeholder {
+  transform: translateX(10px);
+  transition: transform 0.3s ease;
+}
+
+/* تنسيق خاص للخيارات في السليكت */
+select:invalid {
+  color: #999;
+}
+
+option[value=""][disabled] {
+  display: none;
+}
+
+/* تنسيقات إضافية لتحسين المظهر */
+#buySection::before, #sellSection::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: 0;
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color), transparent);
+  border-radius: 2px;
+}
+
+/* تحسين مظهر الـ placeholder للغة العربية */
+input::placeholder, select::placeholder {
+  font-family: 'Cairo', sans-serif;
+  opacity: 0.7;
+}
+
+/* إضافة خلفية متدرجة للحقول المطلوبة */
+input:required, select:required {
+  background-image: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
 </style>
 </head>
 <body>
-
+<div class="container">
 <h1>GARAK ELAKARIA Real Estate Form</h1>
 
-<form id="realEstateForm" novalidate>
+<form id="realEstateForm">
 
 <label>هل تريد شراء شقة أم بيع شقة؟</label>
-<select id="transactionType">
+<select id="transactionType" required>
   <option value="">اختر</option>
   <option value="buy">اشتري شقة</option>
   <option value="sell">بيع شقة</option>
 </select>
 
+<!-- شراء الشقة -->
 <div id="buySection" class="hidden">
   <label>الاسم</label>
   <input type="text" id="buyName">
@@ -105,6 +469,7 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;
   </select>
 </div>
 
+<!-- بيع الشقة -->
 <div id="sellSection" class="hidden">
   <label>الاسم</label>
   <input type="text" id="sellName">
@@ -122,10 +487,10 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;
   </select>
 
   <label>رقم الموبايل</label>
-  <input type="text" id="sellPhone">
+  <input type="text" id="sellPhone" placeholder="اكتب الرقم كاملاً">
 
   <label>مكان الشقة</label>
-  <input type="text" id="sellLocation">
+  <input type="text" id="sellLocation" placeholder="الشارع الرئيسي">
 
   <label>مساحة الشقة بالمتر</label>
   <input type="number" id="sellSize" min="1">
@@ -161,9 +526,9 @@ button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;
   </select>
 </div>
 
-<button type="submit" id="submitBtn">إرسال</button>
+<button type="submit">إرسال</button>
 <div class="success-message hidden" id="successMessage">
-شكرا على تعاملك مع جارك العقارية. سيتم التواصل معك قريباً.
+  شكرا على تعاملك مع جارك العقارية. سيتم التواصل معك على الرقم إذا كان صحيح.
 </div>
 
 <script>
@@ -171,90 +536,218 @@ const transactionType = document.getElementById('transactionType');
 const buySection = document.getElementById('buySection');
 const sellSection = document.getElementById('sellSection');
 const form = document.getElementById('realEstateForm');
-const submitBtn = document.getElementById('submitBtn');
 
-transactionType.addEventListener('change', () => {
-  buySection.classList.toggle('hidden', transactionType.value !== 'buy');
-  sellSection.classList.toggle('hidden', transactionType.value !== 'sell');
-});
+// دالة لإزالة أو إضافة خاصية required للحقول بناءً على القسم الظاهر
+function toggleRequiredFields() {
+  // إزالة required من جميع الحقول أولاً
+  const allInputs = form.querySelectorAll('input, select');
+  allInputs.forEach(field => {
+    field.removeAttribute('required');
+  });
 
-function validatePhone(country, phone){
-  phone = phone.replace(/\D/g,'');
-  const rules = {
-    EG: [/^01\d{9}$/, '+20', 1],
-    SA: [/^05\d{8}$/, '+966', 1],
-    AE: [/^05\d{8}$/, '+971', 1],
-    QA: [/^[3567]\d{7}$/, '+974', 0],
-    KW: [/^[569]\d{7}$/, '+965', 0],
-    YE: [/^\d{9}$/, '+967', 0],
-    IQ: [/^\d{10}$/, '+964', 0]
-  };
-  if(!rules[country]) return null;
-  const [regex, code, slice] = rules[country];
-  if(!regex.test(phone)) return null;
-  return code + (slice ? phone.slice(slice) : phone);
+  // إضافة required فقط للحقول في القسم الظاهر
+  if (transactionType.value === 'buy') {
+    const buyFields = buySection.querySelectorAll('input, select');
+    buyFields.forEach(field => {
+      field.setAttribute('required', 'required');
+    });
+  } else if (transactionType.value === 'sell') {
+    const sellFields = sellSection.querySelectorAll('input, select');
+    sellFields.forEach(field => {
+      field.setAttribute('required', 'required');
+    });
+  }
 }
 
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  document.getElementById('successMessage').classList.add('hidden');
+transactionType.addEventListener('change', () => {
+  if (transactionType.value === 'buy') {
+    buySection.classList.remove('hidden');
+    sellSection.classList.add('hidden');
+    toggleRequiredFields();
+  } else if (transactionType.value === 'sell') {
+    sellSection.classList.remove('hidden');
+    buySection.classList.add('hidden');
+    toggleRequiredFields();
+  } else {
+    buySection.classList.add('hidden');
+    sellSection.classList.add('hidden');
+    // إزالة required من جميع الحقول عند عدم الاختيار
+    const allInputs = form.querySelectorAll('input, select');
+    allInputs.forEach(field => {
+      field.removeAttribute('required');
+    });
+  }
+});
 
-  if(!transactionType.value){
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  let data = {};
+  let phone = '';
+  let country = '';
+  let webhookURL = '';
+
+  if(transactionType.value === 'buy'){
+    const name = document.getElementById('buyName').value.trim();
+    country = document.getElementById('buyCountry').value;
+    phone = document.getElementById('buyPhone').value.trim();
+    const area = document.getElementById('buyArea').value;
+    const cash = document.getElementById('buyCash').value;
+    const size = document.getElementById('buyAreaSize').value;
+    const finishing = document.getElementById('buyFinishing').value;
+
+    if(!name || !country || !phone || !area || !cash || !size || !finishing){
+      alert('رجاءً أكمل كل الحقول');
+      return;
+    }
+
+    // Phone validation
+    phone = phone.replace(/\D/g,'');
+    if(country==='EG'){
+      if(!/^01\d{9}$/.test(phone)){
+        alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+        return;
+      }
+      phone = '+20' + phone.slice(1);
+    } else if(country==='SA'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم سعودي غير صحيح.');
+        return;
+      }
+      phone = '+966' + phone.slice(1);
+    } else if(country==='AE'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم إماراتي غير صحيح.');
+        return;
+      }
+      phone = '+971' + phone.slice(1);
+    } else if(country==='QA'){
+      if(!/^[3567]\d{7}$/.test(phone)){
+        alert('رقم قطري غير صحيح.');
+        return;
+      }
+      phone = '+974' + phone;
+    } else if(country==='KW'){
+      if(!/^[569]\d{7}$/.test(phone)){
+        alert('رقم كويتي غير صحيح.');
+        return;
+      }
+      phone = '+965' + phone;
+    } else if(country==='YE'){
+      if(!/^\d{9}$/.test(phone)){
+        alert('رقم يمني غير صحيح.');
+        return;
+      }
+      phone = '+967' + phone;
+    } else if(country==='IQ'){
+      if(!/^\d{10}$/.test(phone)){
+        alert('رقم عراقي غير صحيح.');
+        return;
+      }
+      phone = '+964' + phone;
+    }
+
+    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/BUY';
+    data = {type:'buy', name, country, phone, area, cash, size, finishing};
+
+  } else if(transactionType.value === 'sell'){
+    const name = document.getElementById('sellName').value.trim();
+    country = document.getElementById('sellCountry').value;
+    phone = document.getElementById('sellPhone').value.trim();
+    const location = document.getElementById('sellLocation').value.trim();
+    const size = document.getElementById('sellSize').value.trim();
+    const finishing = document.getElementById('sellFinishing').value;
+    const paperwork = document.getElementById('sellPaperwork').value;
+    const price = document.getElementById('sellPrice').value;
+
+    if(!name || !country || !phone || !location || !size || !finishing || !paperwork || !price){
+      alert('رجاءً أكمل كل الحقول');
+      return;
+    }
+
+    // Phone validation same as buy
+    phone = phone.replace(/\D/g,'');
+    if(country==='EG'){
+      if(!/^01\d{9}$/.test(phone)){
+        alert('رقم مصري غير صحيح. يجب أن يبدأ بـ 01 ويتكون من 11 رقم.');
+        return;
+      }
+      phone = '+20' + phone.slice(1);
+    } else if(country==='SA'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم سعودي غير صحيح.');
+        return;
+      }
+      phone = '+966' + phone.slice(1);
+    } else if(country==='AE'){
+      if(!/^05\d{8}$/.test(phone)){
+        alert('رقم إماراتي غير صحيح.');
+        return;
+      }
+      phone = '+971' + phone.slice(1);
+    } else if(country==='QA'){
+      if(!/^[3567]\d{7}$/.test(phone)){
+        alert('رقم قطري غير صحيح.');
+        return;
+      }
+      phone = '+974' + phone;
+    } else if(country==='KW'){
+      if(!/^[569]\d{7}$/.test(phone)){
+        alert('رقم كويتي غير صحيح.');
+        return;
+      }
+      phone = '+965' + phone;
+    } else if(country==='YE'){
+      if(!/^\d{9}$/.test(phone)){
+        alert('رقم يمني غير صحيح.');
+        return;
+      }
+      phone = '+967' + phone;
+    } else if(country==='IQ'){
+      if(!/^\d{10}$/.test(phone)){
+        alert('رقم عراقي غير صحيح.');
+        return;
+      }
+      phone = '+964' + phone;
+    }
+
+    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
+    data = {type:'sell', name, country, phone, location, size, finishing, paperwork, price};
+  } else {
     alert('اختر نوع المعاملة');
     return;
   }
 
-  let data = {};
-  let webhookURL = '';
-
-  if(transactionType.value === 'buy'){
-    const name = buyName.value.trim();
-    const country = buyCountry.value;
-    const phone = validatePhone(country, buyPhone.value);
-    if(!name || !country || !phone || !buyArea.value || !buyCash.value || !buyAreaSize.value || !buyFinishing.value){
-      alert('رجاءً أكمل البيانات بشكل صحيح');
-      return;
-    }
-    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/BUY';
-    data = {type:'buy', name, country, phone, area:buyArea.value, cash:buyCash.value, size:buyAreaSize.value, finishing:buyFinishing.value};
-  }
-
-  if(transactionType.value === 'sell'){
-    const name = sellName.value.trim();
-    const country = sellCountry.value;
-    const phone = validatePhone(country, sellPhone.value);
-    if(!name || !country || !phone || !sellLocation.value.trim() || !sellSize.value || !sellFinishing.value || !sellPaperwork.value || !sellPrice.value){
-      alert('رجاءً أكمل البيانات بشكل صحيح');
-      return;
-    }
-    webhookURL = 'https://osha1254.app.n8n.cloud/webhook/SALE';
-    data = {type:'sell', name, country, phone, location:sellLocation.value, size:sellSize.value, finishing:sellFinishing.value, paperwork:sellPaperwork.value, price:sellPrice.value};
-  }
-
-  try{
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'جارٍ الإرسال...';
-
-    const res = await fetch(webhookURL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    });
-
-    if(!res.ok) throw new Error();
-
+  // إرسال البيانات إلى Webhook n8n
+  console.log('Sending data:', data);
+  fetch(webhookURL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res=>{
     form.reset();
     buySection.classList.add('hidden');
     sellSection.classList.add('hidden');
     document.getElementById('successMessage').classList.remove('hidden');
-  }catch(err){
-    alert('حدث خطأ أثناء الإرسال');
-  }finally{
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'إرسال';
-  }
+    
+    // إعادة تعيين خاصية required
+    const allInputs = form.querySelectorAll('input, select');
+    allInputs.forEach(field => {
+      field.removeAttribute('required');
+    });
+    
+    // إعادة تعيين اختيار نوع المعاملة
+    transactionType.value = '';
+  })
+  .catch(err=>{
+    alert('حدث خطأ أثناء الإرسال.');
+    console.error(err);
+  });
+
 });
 </script>
-
+</div>
 </body>
 </html>
