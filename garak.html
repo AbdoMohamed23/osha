@@ -541,328 +541,297 @@ input:required, select:required {
 <div class="error-message hidden" id="errorMessage">
   ❌ حدث خطأ في الإرسال. الرجاء المحاولة مرة أخرى.
 </div>
-</form>
-</div>
 
 <script>
-(function() {
-  // ========== منع أخطاء الشبكة نهائياً ==========
-  const originalFetch = window.fetch;
-  window.fetch = function(...args) {
-    return originalFetch(...args).catch(error => {
-      console.log('تم منع عرض خطأ الشبكة:', error.message);
-      // إرجاع استجابة ناجحة وهمية
-      return new Response(JSON.stringify({ success: true, mocked: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    });
-  };
+const transactionType = document.getElementById('transactionType');
+const buySection = document.getElementById('buySection');
+const sellSection = document.getElementById('sellSection');
+const form = document.getElementById('realEstateForm');
+const submitBtn = document.getElementById('submitBtn');
+const successMessage = document.getElementById('successMessage');
+const errorMessage = document.getElementById('errorMessage');
 
-  // منع أخطاء الـ CORS من الظهور في الكونسول
-  window.addEventListener('error', function(e) {
-    if (e.message && (
-        e.message.includes('fetch') || 
-        e.message.includes('network') || 
-        e.message.includes('CORS') ||
-        e.message.includes('Failed to fetch')
-    )) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-  }, true);
-
-  // منع أخطاء الـ Promise من الظهور
-  window.addEventListener('unhandledrejection', function(e) {
-    if (e.reason && (
-        e.reason.message?.includes('fetch') || 
-        e.reason.message?.includes('network') ||
-        e.reason.message?.includes('CORS')
-    )) {
-      e.preventDefault();
-      return false;
-    }
+// دالة لإزالة أو إضافة خاصية required للحقول
+function toggleRequiredFields() {
+  const allInputs = form.querySelectorAll('input, select');
+  allInputs.forEach(field => {
+    field.removeAttribute('required');
   });
 
-  // المتغيرات الأساسية
-  const transactionType = document.getElementById('transactionType');
-  const buySection = document.getElementById('buySection');
-  const sellSection = document.getElementById('sellSection');
-  const form = document.getElementById('realEstateForm');
-  const submitBtn = document.getElementById('submitBtn');
-  const successMessage = document.getElementById('successMessage');
-  const errorMessage = document.getElementById('errorMessage');
+  if (transactionType.value === 'buy') {
+    const buyFields = buySection.querySelectorAll('input, select');
+    buyFields.forEach(field => {
+      field.setAttribute('required', 'required');
+    });
+  } else if (transactionType.value === 'sell') {
+    const sellFields = sellSection.querySelectorAll('input, select');
+    sellFields.forEach(field => {
+      field.setAttribute('required', 'required');
+    });
+  }
+}
 
-  // دالة لإزالة أو إضافة خاصية required للحقول
-  function toggleRequiredFields() {
+// إخفاء رسائل النجاح/الخطأ
+function hideMessages() {
+  successMessage.classList.add('hidden');
+  errorMessage.classList.add('hidden');
+}
+
+// عرض رسالة النجاح
+function showSuccess() {
+  successMessage.classList.remove('hidden');
+  errorMessage.classList.add('hidden');
+  setTimeout(() => {
+    successMessage.classList.add('hidden');
+  }, 5000);
+}
+
+// عرض رسالة الخطأ
+function showError() {
+  errorMessage.classList.remove('hidden');
+  successMessage.classList.add('hidden');
+  setTimeout(() => {
+    errorMessage.classList.add('hidden');
+  }, 5000);
+}
+
+// تفعيل/تعطيل الزر
+function setButtonLoading(isLoading) {
+  submitBtn.disabled = isLoading;
+  submitBtn.innerHTML = isLoading ? '<span class="loader"></span> جاري الإرسال...' : 'إرسال';
+}
+
+// الحصول على اسم الدولة
+function getCountryName(countryCode) {
+  const countries = {
+    'EG': 'مصر',
+    'SA': 'السعودية',
+    'AE': 'الإمارات',
+    'QA': 'قطر',
+    'KW': 'الكويت',
+    'YE': 'اليمن',
+    'IQ': 'العراق'
+  };
+  return countries[countryCode] || countryCode;
+}
+
+// التحقق من صحة رقم الهاتف
+function validatePhone(phone, country) {
+  phone = phone.replace(/\D/g, '');
+  
+  const validations = {
+    'EG': /^01\d{9}$/,
+    'SA': /^05\d{8}$/,
+    'AE': /^05\d{8}$/,
+    'QA': /^[3567]\d{7}$/,
+    'KW': /^[569]\d{7}$/,
+    'YE': /^\d{9}$/,
+    'IQ': /^\d{10}$/
+  };
+  
+  const prefixes = {
+    'EG': '+20',
+    'SA': '+966',
+    'AE': '+971',
+    'QA': '+974',
+    'KW': '+965',
+    'YE': '+967',
+    'IQ': '+964'
+  };
+  
+  if (!validations[country]?.test(phone)) {
+    return { valid: false, message: 'رقم هاتف غير صحيح لهذه الدولة' };
+  }
+  
+  let formattedPhone = phone;
+  if (country === 'EG' || country === 'SA' || country === 'AE') {
+    formattedPhone = prefixes[country] + phone.slice(1);
+  } else {
+    formattedPhone = prefixes[country] + phone;
+  }
+  
+  return { valid: true, phone: formattedPhone };
+}
+
+transactionType.addEventListener('change', () => {
+  hideMessages();
+  
+  if (transactionType.value === 'buy') {
+    buySection.classList.remove('hidden');
+    sellSection.classList.add('hidden');
+    toggleRequiredFields();
+  } else if (transactionType.value === 'sell') {
+    sellSection.classList.remove('hidden');
+    buySection.classList.add('hidden');
+    toggleRequiredFields();
+  } else {
+    buySection.classList.add('hidden');
+    sellSection.classList.add('hidden');
     const allInputs = form.querySelectorAll('input, select');
     allInputs.forEach(field => {
       field.removeAttribute('required');
     });
+  }
+});
 
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideMessages();
+  
+  if (!transactionType.value) {
+    alert('الرجاء اختيار نوع المعاملة');
+    return;
+  }
+  
+  setButtonLoading(true);
+
+  try {
+    let formData = {};
+    let webhookURL = '';
+    
+    // جمع البيانات حسب نوع المعاملة
     if (transactionType.value === 'buy') {
-      const buyFields = buySection.querySelectorAll('input, select');
-      buyFields.forEach(field => {
-        field.setAttribute('required', 'required');
-      });
+      const name = document.getElementById('buyName').value.trim();
+      const country = document.getElementById('buyCountry').value;
+      const phone = document.getElementById('buyPhone').value.trim();
+      const area = document.getElementById('buyArea').value;
+      const cash = document.getElementById('buyCash').value;
+      const size = document.getElementById('buyAreaSize').value;
+      const finishing = document.getElementById('buyFinishing').value;
+      
+      // التحقق من الحقول
+      if (!name || !country || !phone || !area || !cash || !size || !finishing) {
+        alert('الرجاء ملء جميع الحقول المطلوبة');
+        setButtonLoading(false);
+        return;
+      }
+      
+      // التحقق من رقم الهاتف
+      const phoneValidation = validatePhone(phone, country);
+      if (!phoneValidation.valid) {
+        alert(phoneValidation.message);
+        setButtonLoading(false);
+        return;
+      }
+      
+      // تجهيز بيانات الشراء
+      formData = {
+        type: 'buy',
+        transaction_type: 'شراء شقة',
+        customer_name: name,
+        customer_country_code: country,
+        customer_country_name: getCountryName(country),
+        customer_phone: phoneValidation.phone,
+        preferred_area: area,
+        cash_range: cash,
+        apartment_size_range: size,
+        finishing_type: finishing,
+        submission_date: new Date().toISOString(),
+        submission_timestamp: Date.now(),
+        form_version: '1.0'
+      };
+      
+      webhookURL = 'https://n8n.osha.gleeze.com/webhook/BUY';
+      
     } else if (transactionType.value === 'sell') {
-      const sellFields = sellSection.querySelectorAll('input, select');
-      sellFields.forEach(field => {
-        field.setAttribute('required', 'required');
-      });
-    }
-  }
-
-  // إخفاء رسائل النجاح/الخطأ
-  function hideMessages() {
-    successMessage.classList.add('hidden');
-    errorMessage.classList.add('hidden');
-  }
-
-  // عرض رسالة النجاح
-  function showSuccess() {
-    successMessage.classList.remove('hidden');
-    errorMessage.classList.add('hidden');
-    setTimeout(() => {
-      successMessage.classList.add('hidden');
-    }, 5000);
-  }
-
-  // تفعيل/تعطيل الزر
-  function setButtonLoading(isLoading) {
-    submitBtn.disabled = isLoading;
-    submitBtn.innerHTML = isLoading ? '<span class="loader"></span> جاري الإرسال...' : 'إرسال';
-  }
-
-  // الحصول على اسم الدولة
-  function getCountryName(countryCode) {
-    const countries = {
-      'EG': 'مصر',
-      'SA': 'السعودية',
-      'AE': 'الإمارات',
-      'QA': 'قطر',
-      'KW': 'الكويت',
-      'YE': 'اليمن',
-      'IQ': 'العراق'
-    };
-    return countries[countryCode] || countryCode;
-  }
-
-  // التحقق من صحة رقم الهاتف
-  function validatePhone(phone, country) {
-    phone = phone.replace(/\D/g, '');
-    
-    const validations = {
-      'EG': /^01\d{9}$/,
-      'SA': /^05\d{8}$/,
-      'AE': /^05\d{8}$/,
-      'QA': /^[3567]\d{7}$/,
-      'KW': /^[569]\d{7}$/,
-      'YE': /^\d{9}$/,
-      'IQ': /^\d{10}$/
-    };
-    
-    const prefixes = {
-      'EG': '+20',
-      'SA': '+966',
-      'AE': '+971',
-      'QA': '+974',
-      'KW': '+965',
-      'YE': '+967',
-      'IQ': '+964'
-    };
-    
-    if (!validations[country]?.test(phone)) {
-      return { valid: false, message: 'رقم هاتف غير صحيح لهذه الدولة' };
+      const name = document.getElementById('sellName').value.trim();
+      const country = document.getElementById('sellCountry').value;
+      const phone = document.getElementById('sellPhone').value.trim();
+      const location = document.getElementById('sellLocation').value.trim();
+      const size = document.getElementById('sellSize').value.trim();
+      const finishing = document.getElementById('sellFinishing').value;
+      const paperwork = document.getElementById('sellPaperwork').value;
+      const price = document.getElementById('sellPrice').value;
+      
+      // التحقق من الحقول
+      if (!name || !country || !phone || !location || !size || !finishing || !paperwork || !price) {
+        alert('الرجاء ملء جميع الحقول المطلوبة');
+        setButtonLoading(false);
+        return;
+      }
+      
+      // التحقق من رقم الهاتف
+      const phoneValidation = validatePhone(phone, country);
+      if (!phoneValidation.valid) {
+        alert(phoneValidation.message);
+        setButtonLoading(false);
+        return;
+      }
+      
+      // تجهيز بيانات البيع
+      formData = {
+        type: 'sell',
+        transaction_type: 'بيع شقة',
+        customer_name: name,
+        customer_country_code: country,
+        customer_country_name: getCountryName(country),
+        customer_phone: phoneValidation.phone,
+        apartment_location: location,
+        apartment_size: size + ' متر',
+        apartment_finishing: finishing,
+        paperwork_status: paperwork,
+        price_range: price,
+        submission_date: new Date().toISOString(),
+        submission_timestamp: Date.now(),
+        form_version: '1.0'
+      };
+      
+      webhookURL = 'https://n8n.osha.gleeze.com/webhook/SALE';
     }
     
-    let formattedPhone = phone;
-    if (country === 'EG' || country === 'SA' || country === 'AE') {
-      formattedPhone = prefixes[country] + phone.slice(1);
-    } else {
-      formattedPhone = prefixes[country] + phone;
+    // طباعة البيانات في الكونسول للتأكد
+    console.log('الويب هوك:', webhookURL);
+    console.log('البيانات المرسلة:', JSON.stringify(formData, null, 2));
+    
+    // إرسال البيانات
+    const response = await fetch(webhookURL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+    
+    // التحقق من الاستجابة
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('خطأ في الاستجابة:', response.status, errorText);
+      throw new Error(`فشل الإرسال: ${response.status}`);
     }
     
-    return { valid: true, phone: formattedPhone };
+    const responseData = await response.json();
+    console.log('رد الخادم:', responseData);
+    
+    // نجاح الإرسال
+    form.reset();
+    buySection.classList.add('hidden');
+    sellSection.classList.add('hidden');
+    transactionType.value = '';
+    
+    const allInputs = form.querySelectorAll('input, select');
+    allInputs.forEach(field => {
+      field.removeAttribute('required');
+    });
+    
+    showSuccess();
+    
+  } catch (error) {
+    console.error('خطأ:', error);
+    showError();
+  } finally {
+    setButtonLoading(false);
   }
+});
 
-  // حدث تغيير نوع المعاملة
-  transactionType.addEventListener('change', () => {
-    hideMessages();
-    
-    if (transactionType.value === 'buy') {
-      buySection.classList.remove('hidden');
-      sellSection.classList.add('hidden');
-      toggleRequiredFields();
-    } else if (transactionType.value === 'sell') {
-      sellSection.classList.remove('hidden');
-      buySection.classList.add('hidden');
-      toggleRequiredFields();
-    } else {
-      buySection.classList.add('hidden');
-      sellSection.classList.add('hidden');
-      const allInputs = form.querySelectorAll('input, select');
-      allInputs.forEach(field => {
-        field.removeAttribute('required');
-      });
-    }
-  });
-
-  // حدث إرسال النموذج
-  form.addEventListener('submit', async (e) => {
+// منع إرسال النموذج بالطريقة التقليدية
+form.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
     e.preventDefault();
-    hideMessages();
-    
-    if (!transactionType.value) {
-      alert('الرجاء اختيار نوع المعاملة');
-      return;
-    }
-    
-    setButtonLoading(true);
-
-    try {
-      let formData = {};
-      let webhookURL = '';
-      
-      // جمع البيانات حسب نوع المعاملة
-      if (transactionType.value === 'buy') {
-        const name = document.getElementById('buyName').value.trim();
-        const country = document.getElementById('buyCountry').value;
-        const phone = document.getElementById('buyPhone').value.trim();
-        const area = document.getElementById('buyArea').value;
-        const cash = document.getElementById('buyCash').value;
-        const size = document.getElementById('buyAreaSize').value;
-        const finishing = document.getElementById('buyFinishing').value;
-        
-        // التحقق من الحقول
-        if (!name || !country || !phone || !area || !cash || !size || !finishing) {
-          alert('الرجاء ملء جميع الحقول المطلوبة');
-          setButtonLoading(false);
-          return;
-        }
-        
-        // التحقق من رقم الهاتف
-        const phoneValidation = validatePhone(phone, country);
-        if (!phoneValidation.valid) {
-          alert(phoneValidation.message);
-          setButtonLoading(false);
-          return;
-        }
-        
-        // تجهيز بيانات الشراء
-        formData = {
-          type: 'buy',
-          transaction_type: 'شراء شقة',
-          customer_name: name,
-          customer_country_code: country,
-          customer_country_name: getCountryName(country),
-          customer_phone: phoneValidation.phone,
-          preferred_area: area,
-          cash_range: cash,
-          apartment_size_range: size,
-          finishing_type: finishing,
-          submission_date: new Date().toISOString(),
-          submission_timestamp: Date.now(),
-          form_version: '1.0'
-        };
-        
-        webhookURL = 'https://n8n.osha.gleeze.com/webhook/BUY';
-        
-      } else if (transactionType.value === 'sell') {
-        const name = document.getElementById('sellName').value.trim();
-        const country = document.getElementById('sellCountry').value;
-        const phone = document.getElementById('sellPhone').value.trim();
-        const location = document.getElementById('sellLocation').value.trim();
-        const size = document.getElementById('sellSize').value.trim();
-        const finishing = document.getElementById('sellFinishing').value;
-        const paperwork = document.getElementById('sellPaperwork').value;
-        const price = document.getElementById('sellPrice').value;
-        
-        // التحقق من الحقول
-        if (!name || !country || !phone || !location || !size || !finishing || !paperwork || !price) {
-          alert('الرجاء ملء جميع الحقول المطلوبة');
-          setButtonLoading(false);
-          return;
-        }
-        
-        // التحقق من رقم الهاتف
-        const phoneValidation = validatePhone(phone, country);
-        if (!phoneValidation.valid) {
-          alert(phoneValidation.message);
-          setButtonLoading(false);
-          return;
-        }
-        
-        // تجهيز بيانات البيع
-        formData = {
-          type: 'sell',
-          transaction_type: 'بيع شقة',
-          customer_name: name,
-          customer_country_code: country,
-          customer_country_name: getCountryName(country),
-          customer_phone: phoneValidation.phone,
-          apartment_location: location,
-          apartment_size: size + ' متر',
-          apartment_finishing: finishing,
-          paperwork_status: paperwork,
-          price_range: price,
-          submission_date: new Date().toISOString(),
-          submission_timestamp: Date.now(),
-          form_version: '1.0'
-        };
-        
-        webhookURL = 'https://n8n.osha.gleeze.com/webhook/SALE';
-      }
-      
-      console.log('الويب هوك:', webhookURL);
-      console.log('البيانات المرسلة:', JSON.stringify(formData, null, 2));
-      
-      // ========== الإرسال مع تجاهل أخطاء CORS تماماً ==========
-      try {
-        // استخدام no-cors mode لمنع أخطاء CORS
-        await fetch(webhookURL, {
-          method: 'POST',
-          mode: 'no-cors', // 🔥 هذا يمنع ظهور أخطاء CORS
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-      } catch (fetchError) {
-        // حتى لو حصل خطأ، نتجاهله تماماً
-        console.log('تم تجاهل خطأ الإرسال:', fetchError);
-      }
-      
-      // نعتبر العملية ناجحة دائماً
-      form.reset();
-      buySection.classList.add('hidden');
-      sellSection.classList.add('hidden');
-      transactionType.value = '';
-      
-      const allInputs = form.querySelectorAll('input, select');
-      allInputs.forEach(field => {
-        field.removeAttribute('required');
-      });
-      
-      showSuccess();
-      
-    } catch (error) {
-      console.error('خطأ غير متوقع:', error);
-      // نظهر نجاح حتى لو حصل أي خطأ غير متوقع
-      showSuccess();
-    } finally {
-      setButtonLoading(false);
-    }
-  });
-
-  // منع إرسال النموذج بالطريقة التقليدية
-  form.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  });
-})();
+  }
+});
 </script>
+</div>
 </body>
 </html>
